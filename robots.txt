@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: http://www.cocofashion.com.au/sitemap.xml
+Sitemap: https://fengxiao1977.github.io/github.io/sitemap.xml
