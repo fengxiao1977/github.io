@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>In-Place Legacy OS Upgrade — Personal Test Page</title>
+  <meta name="description" content="Personal test notes on in-place legacy OS upgrades for Windows Server, RHEL, and Oracle Linux, plus rollback and AMS Operations on Demand billing. Not an official AWS page.">
+  <meta name="robots" content="index, follow">
+  <meta name="author" content="Personal test page">
+  <link rel="canonical" href="https://fengxiao1977.github.io/github.io/legacy-os-upgrade/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="In-Place Legacy OS Upgrade — Personal Test Page">
+  <meta property="og:description" content="Personal test notes on in-place legacy OS upgrades for Windows Server, RHEL, and Oracle Linux, plus rollback and AMS Operations on Demand billing. Not an official AWS page.">
+  <meta property="og:url" content="https://fengxiao1977.github.io/github.io/legacy-os-upgrade/">
+  <meta property="og:site_name" content="Personal test page">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="In-Place Legacy OS Upgrade — Personal Test Page">
+  <meta name="twitter:description" content="Personal test notes on in-place legacy OS upgrades for Windows Server, RHEL, and Oracle Linux, plus rollback and AMS Operations on Demand billing. Not an official AWS page.">
+  <meta name="theme-color" content="#1f4d3a">
+  <style>
+    :root {
+      --ink: #1c2430;
+      --muted: #526072;
+      --line: #e4e0d6;
+      --paper: #fffcf7;
+      --canvas: #f3f0e8;
+      --accent: #1f4d3a;
+      --accent-soft: #e7f2ec;
+      --warn-bg: #f8edd6;
+      --warn-ink: #5c4310;
+      --warn-line: #e4cf9a;
+      --shadow: 0 1px 2px rgba(28, 36, 48, 0.04);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--canvas);
+      font-family: "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+      font-size: 1.0625rem;
+      line-height: 1.65;
+    }
+
+    a { color: var(--accent); }
+
+    a:hover { text-decoration-thickness: 2px; }
+
+    a:focus-visible {
+      outline: 3px solid var(--accent);
+      outline-offset: 3px;
+    }
+
+    .skip {
+      position: absolute;
+      left: 0.75rem;
+      top: 0.75rem;
+      transform: translateY(-150%);
+      background: var(--ink);
+      color: #fff;
+      padding: 0.5rem 0.8rem;
+      border-radius: 8px;
+      z-index: 10;
+    }
+
+    .skip:focus { transform: none; }
+
+    .top {
+      background: var(--accent);
+      color: #f4faf6;
+    }
+
+    .top-inner {
+      max-width: 68rem;
+      margin: 0 auto;
+      padding: 0.85rem 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      align-items: baseline;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      margin: 0;
+      font-size: 0.92rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-weight: 650;
+    }
+
+    .home-link {
+      color: #f4faf6;
+      font-size: 0.92rem;
+    }
+
+    .notice {
+      background: var(--warn-bg);
+      color: var(--warn-ink);
+      border-bottom: 1px solid var(--warn-line);
+    }
+
+    .notice-inner {
+      max-width: 68rem;
+      margin: 0 auto;
+      padding: 0.9rem 1.25rem;
+    }
+
+    .notice strong { font-weight: 700; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 15rem minmax(0, 42rem);
+      gap: 2.5rem;
+      max-width: 68rem;
+      margin: 0 auto;
+      padding: 2rem 1.25rem 4rem;
+      align-items: start;
+    }
+
+    .toc {
+      position: sticky;
+      top: 1.25rem;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 1rem 1rem 0.85rem;
+      box-shadow: var(--shadow);
+    }
+
+    .toc h2 {
+      margin: 0 0 0.55rem;
+      font-size: 0.78rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .toc ol {
+      margin: 0;
+      padding-left: 1.15rem;
+    }
+
+    .toc li { margin: 0.35rem 0; }
+
+    .toc a {
+      color: var(--ink);
+      text-decoration: none;
+      font-size: 0.95rem;
+    }
+
+    .toc a:hover { color: var(--accent); text-decoration: underline; }
+
+    article {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 1.6rem 1.4rem 2rem;
+      box-shadow: var(--shadow);
+    }
+
+    .kicker {
+      margin: 0 0 0.4rem;
+      color: var(--accent);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0 0 0.8rem;
+      font-size: clamp(1.8rem, 3vw, 2.35rem);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+    }
+
+    h2 {
+      margin: 2rem 0 0.6rem;
+      font-size: 1.35rem;
+      line-height: 1.3;
+      scroll-margin-top: 1rem;
+    }
+
+    p { margin: 0.7rem 0; }
+
+    .lead { font-size: 1.12rem; }
+
+    ul { margin: 0.6rem 0 0.6rem; padding-left: 1.2rem; }
+
+    li { margin: 0.35rem 0; }
+
+    .paths {
+      list-style: none;
+      margin: 1rem 0 0;
+      padding: 0;
+      display: grid;
+      gap: 0.65rem;
+    }
+
+    .path {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+      gap: 0.75rem;
+      align-items: center;
+      padding: 0.85rem 0.95rem;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .from, .to { font-weight: 650; }
+
+    .to { color: var(--accent); }
+
+    .arrow {
+      color: var(--muted);
+      font-size: 1.15rem;
+    }
+
+    .callout {
+      margin-top: 1rem;
+      padding: 0.9rem 1rem;
+      background: var(--accent-soft);
+      border-radius: 12px;
+    }
+
+    .callout p { margin: 0; }
+
+    footer {
+      max-width: 68rem;
+      margin: 0 auto;
+      padding: 0 1.25rem 2.5rem;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    @media (max-width: 860px) {
+      .layout {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding-top: 1.25rem;
+      }
+
+      .toc { position: static; }
+    }
+
+    @media (max-width: 560px) {
+      body { font-size: 1rem; }
+
+      article { padding: 1.25rem 1rem 1.5rem; }
+
+      .path {
+        grid-template-columns: 1fr;
+        gap: 0.15rem;
+      }
+
+      .arrow { transform: rotate(90deg); width: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="top">
+    <div class="top-inner">
+      <p class="brand">Personal test page</p>
+      <a class="home-link" href="https://fengxiao1977.github.io/github.io/">Back to site home</a>
+    </div>
+  </header>
+  <div class="notice">
+    <div class="notice-inner">
+      <strong>Not an official AWS page.</strong>
+      These are personal study notes written for a GitHub Pages test. They are not published by Amazon Web Services, and they are not an offer, quote, or support commitment.
+      Wording here is original. Facts are summarized from the public document
+      <a href="https://docs.aws.amazon.com/managedservices/latest/accelerate-guide/ops-on-demand.html">Operations On Demand</a>
+      in the AMS Accelerate User Guide.
+    </div>
+  </div>
+  <div class="layout">
+    <nav class="toc" aria-label="On this page">
+      <h2>On this page</h2>
+      <ol>
+        <li><a href="#what-it-is">What an in-place upgrade is</a></li>
+        <li><a href="#why-it-fits">When it is useful</a></li>
+        <li><a href="#paths">Supported paths</a></li>
+        <li><a href="#rollback">Rollback</a></li>
+        <li><a href="#request-billing">Request and billing</a></li>
+      </ol>
+    </nav>
+    <article id="main">
+      <p class="kicker">Operations on Demand · study notes</p>
+      <h1>In-place upgrade of a legacy operating system</h1>
+      <p class="lead">An in-place upgrade advances the operating system that is already installed on an instance. The application stays where it is. A new machine is not built, and the workload is not migrated onto it.</p>
+
+      <h2 id="what-it-is">What an in-place upgrade is</h2>
+      <p>The version change is done with the upgrade programs supplied by the operating-system vendor, wrapped in automation so the same sequence can be repeated on the instances you select. Microsoft, Red Hat, and Oracle each publish a supported way to move from an older major release to a newer one. Automation coordinates those vendor tools; it does not replace them.</p>
+      <p>That is a different job from a migration. A migration stands up another instance, installs the application there, and cuts traffic over. An in-place upgrade keeps the same instance and changes the OS underneath the software that is already present.</p>
+
+      <h2 id="why-it-fits">When it is useful</h2>
+      <p>The approach suits older applications that cannot be installed a second time. Typical cases are lost source code, or an independent software vendor that has gone out of business, so there is no installer and no vendor left to rebuild the stack on a fresh image.</p>
+      <p>It also shrinks the window of exposure that comes with an unpatched older operating system. Releases that no longer receive security fixes leave known flaws in place. Moving the instance onto a supported release reduces that exposure without asking the application to be reinstalled.</p>
+
+      <h2 id="paths">Supported paths</h2>
+      <p>These are the in-place routes described for this offering:</p>
+      <ul class="paths">
+        <li class="path">
+          <span class="from">Windows Server 2012 R2</span>
+          <span class="arrow" aria-hidden="true">→</span>
+          <span class="to">Windows Server 2016 and later</span>
+        </li>
+        <li class="path">
+          <span class="from">Windows Server 2016</span>
+          <span class="arrow" aria-hidden="true">→</span>
+          <span class="to">Windows Server 2022 and later</span>
+        </li>
+        <li class="path">
+          <span class="from">Red Hat Enterprise Linux 7</span>
+          <span class="arrow" aria-hidden="true">→</span>
+          <span class="to">Red Hat Enterprise Linux 8</span>
+        </li>
+        <li class="path">
+          <span class="from">Red Hat Enterprise Linux 8</span>
+          <span class="arrow" aria-hidden="true">→</span>
+          <span class="to">Red Hat Enterprise Linux 9</span>
+        </li>
+        <li class="path">
+          <span class="from">Oracle Linux 7</span>
+          <span class="arrow" aria-hidden="true">→</span>
+          <span class="to">Oracle Linux 8</span>
+        </li>
+      </ul>
+
+      <h2 id="rollback">Rollback</h2>
+      <p>If an upgrade fails, it can be rolled back. The instance is returned to the state it was in before the upgrade started.</p>
+
+      <h2 id="request-billing">How this is requested and billed in AMS Operations on Demand</h2>
+      <p>Inside AWS Managed Services, this upgrade is one item in the Operations on Demand catalog. After the engagement is scoped, it is started with a service request. There is no separate long-term contract just for this item.</p>
+      <div class="callout">
+        <p>Time is sold in monthly blocks of 20 hours. At least one block is billed every month the engagement is active, even if fewer than 20 hours are used. Hours left unused in a month do not carry into the next month. An extra allocated block that is not used at all is not billed.</p>
+      </div>
+    </article>
+  </div>
+  <footer>
+    <p>Personal test page for GitHub Pages. Not affiliated with Amazon Web Services. Source: <a href="https://docs.aws.amazon.com/managedservices/latest/accelerate-guide/ops-on-demand.html">Operations On Demand — AMS Accelerate User Guide</a>.</p>
+  </footer>
+</body>
+</html>
